@@ -23,6 +23,8 @@ return [
         'http://localhost:8000',
         'https://vi-santé.com',
         'https://api.vi-santé.com',
+        'https://xn--vi-sant-hya.com',
+        'https://api.xn--vi-sant-hya.com',
     ],
 
     'allowed_origins_patterns' => [],
