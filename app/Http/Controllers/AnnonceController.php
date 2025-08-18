@@ -20,7 +20,7 @@ class AnnonceController extends Controller
     {
         try {
             Log::info('Fetching annonces for user: ' . Auth::id());
-            
+
             // For admin/dashboard purposes, can include filter by user
             if ($request->has('user_id') && Auth::user()->role_id === 1) { // Assuming role_id 1 is admin
                 $annonces = Annonce::where('user_id', $request->user_id)
@@ -32,10 +32,10 @@ class AnnonceController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
             }
-            
+
             Log::info('Annonces found: ' . $annonces->count());
             Log::info('Annonces data: ' . json_encode($annonces));
-            
+
             return response()->json($annonces);
         } catch (\Exception $e) {
             Log::error('Error fetching annonces: ' . $e->getMessage());
@@ -114,7 +114,7 @@ class AnnonceController extends Controller
 
             // Convert is_active from string/boolean to boolean
             $isActive = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);
-            
+
             // Handle percentage reduction
             $pourcentageReduction = $request->pourcentage_reduction ?? 0;
             $pourcentageReduction = max(0, min(20, intval($pourcentageReduction)));
@@ -131,9 +131,9 @@ class AnnonceController extends Controller
             $annonce->images = !empty($imagePaths) ? $imagePaths : null;
             $annonce->is_active = $isActive;
             $annonce->pourcentage_reduction = $pourcentageReduction;
-            
+
             $result = $annonce->save();
-            
+
             Log::info('Annonce saved result: ' . ($result ? 'success' : 'failure'));
             Log::info('Annonce ID: ' . $annonce->id);
 
@@ -142,7 +142,7 @@ class AnnonceController extends Controller
             Log::error('Error creating annonce: ' . $e->getMessage());
             Log::error($e->getTraceAsString());
             return response()->json([
-                'error' => 'An error occurred while creating the announcement', 
+                'error' => 'An error occurred while creating the announcement',
                 'details' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ], 500);
@@ -208,21 +208,21 @@ class AnnonceController extends Controller
             // Handle image uploads if new images are provided
             if ($request->hasFile('images')) {
                 $imagePaths = [];
-                
+
                 // Get existing images
                 $existingImages = $annonce->images ?? [];
-                
+
                 // Add new images
                 foreach ($request->file('images') as $image) {
                     $path = $image->store('annonces', 'public');
                     $imagePaths[] = '/storage/' . $path;
                 }
-                
+
                 // Merge with existing images if keep_images is true
                 if ($request->has('keep_images') && $request->keep_images) {
                     $imagePaths = array_merge($existingImages, $imagePaths);
                 }
-                
+
                 $annonce->images = $imagePaths;
             }
 
@@ -233,11 +233,11 @@ class AnnonceController extends Controller
             if ($request->has('address')) $annonce->address = $request->address;
             if ($request->has('phone')) $annonce->phone = $request->phone;
             if ($request->has('email')) $annonce->email = $request->email;
-            
+
             if ($request->has('is_active')) {
                 $annonce->is_active = filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN);
             }
-            
+
             if ($request->has('pourcentage_reduction')) {
                 $pourcentageReduction = max(0, min(20, intval($request->pourcentage_reduction)));
                 $annonce->pourcentage_reduction = $pourcentageReduction;
@@ -275,7 +275,7 @@ class AnnonceController extends Controller
             } else {
                 $annonce->is_active = !$annonce->is_active;
             }
-            
+
             $annonce->save();
 
             return response()->json($annonce);

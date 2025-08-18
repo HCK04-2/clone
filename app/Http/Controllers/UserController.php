@@ -101,8 +101,8 @@ class UserController extends Controller
             'age' => 'nullable|numeric',
             'gender' => 'nullable|string',
             'blood_type' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'chronic_diseases' => 'nullable|string',
+            'allergies' => 'nullable',
+            'chronic_diseases' => 'nullable',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
@@ -125,12 +125,30 @@ class UserController extends Controller
             $profile->user_id = $user->id;
         }
 
-        // Update profile data
-        $profile->age = $request->age; // Can be null
+        // Always save allergies/chronic_diseases as JSON array string
+        $profile->age = $request->age;
         $profile->gender = $request->gender ?? '';
         $profile->blood_type = $request->blood_type ?? '';
-        $profile->allergies = $request->allergies ?: 'Aucune';
-        $profile->chronic_diseases = $request->chronic_diseases ?: 'Aucune';
+
+        // Convert allergies to JSON array string if not empty
+        if (is_array($request->allergies)) {
+            $profile->allergies = json_encode($request->allergies);
+        } elseif ($request->allergies && $request->allergies !== "Aucune") {
+            // If it's a string, split and encode
+            $profile->allergies = json_encode(array_map('trim', explode(',', $request->allergies)));
+        } else {
+            $profile->allergies = json_encode(["Aucune"]);
+        }
+
+        // Convert chronic_diseases to JSON array string if not empty
+        if (is_array($request->chronic_diseases)) {
+            $profile->chronic_diseases = json_encode($request->chronic_diseases);
+        } elseif ($request->chronic_diseases && $request->chronic_diseases !== "Aucune") {
+            $profile->chronic_diseases = json_encode(array_map('trim', explode(',', $request->chronic_diseases)));
+        } else {
+            $profile->chronic_diseases = json_encode(["Aucune"]);
+        }
+
         $profile->save();
 
         // If this is a patient, also update patient_profile

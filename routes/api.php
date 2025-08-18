@@ -11,6 +11,8 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AnnonceController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SiteStatsController;
+use App\Http\Controllers\MedecinController;
+use App\Http\Controllers\OrganisationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // User profile
     Route::get('/user/profile', [UserController::class, 'profile']);
     Route::put('/user/profile', [UserController::class, 'updateProfile']);
+    Route::post('/user/profile/update', [UserController::class, 'updateProfile']); // <-- ADD THIS LINE
+    Route::post('/user/profile/update-avatar', [UserController::class, 'updateProfileAvatar']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -64,4 +68,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('patient')->group(function () {
         // Patient specific routes here
     });
+
+    // Medecins
+    Route::get('/medecins', [MedecinController::class, 'index']);
+
+    // Organisations
+    Route::get('/organisations', [OrganisationController::class, 'index']);
+
+    // Appointments
+    Route::get('/appointments', [AppointmentController::class, 'index']);
 });
